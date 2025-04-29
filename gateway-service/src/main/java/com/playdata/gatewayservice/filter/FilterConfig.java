@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 // 클래스 빈 등록 방식, yml에 등록하는 방식
 public class FilterConfig {
 
-    @Bean
+    //    @Bean
     public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route(r -> r.path("/first-service/**")
@@ -21,4 +21,5 @@ public class FilterConfig {
 
                 .build();
     }
+
 }

@@ -6,6 +6,12 @@ spring:
     name: gateway-service
   cloud:
     gateway:
+      default-filters:
+        - name: GlobalFilter
+          args:
+            baseMessage: hello gateway!
+            preLogger: false
+            postLogger: true
       routes:
         - id: first-service
           uri: lb://FIRST-SERVICE
@@ -19,9 +25,12 @@ spring:
           predicates:
             - Path=/second-service/**
           filters:
-            - CustomFilter
-
-
+            - name: CustomFilter
+            - name: LoggerFilter
+              args:
+                baseMessage: hello gateway!
+                preLogger: false
+                postLogger: true
 
 eureka:
   client:
