@@ -24,11 +24,12 @@ import java.util.List;
 @Slf4j
 public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory {
 
+    @Value("${jwt.secretKey}")
+    private String secretKey;
+
     private final List<String> allowUrl = Arrays.asList(
             "/create", "/doLogin", "/refresh"
     );
-    @Value("${jwt.secretKey}")
-    private String secretKey;
 
     @Override
     public GatewayFilter apply(Object config) {
@@ -40,18 +41,20 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory {
             boolean isAllowed
                     = allowUrl.stream()
                     .anyMatch(url -> antPathMatcher.match("/user" + url, path));
+            log.info("isAllowed:{}", isAllowed);
 
             if (isAllowed) {
                 // 허용 url이 맞다면 그냥 통과~
                 return chain.filter(exchange);
             }
 
-            // 토큰이 필요한 요청은  Header에 Authorization 이라는 이름으로 Bearer ~~~가 전달됨.
+            // 토큰이 필요한 요청은 Header에 Authorization 이라는 이름으로 Bearer ~~~가 전달됨.
             String authorizationHeader
                     = exchange.getRequest()
                     .getHeaders().getFirst("Authorization");
+
             if (authorizationHeader == null
-                    || !authorizationHeader.startsWith("Bearer")) {
+                    || !authorizationHeader.startsWith("Bearer ")) {
                 // 토큰이 존재하지 않거나, Bearer로 시작하지 않는다면
                 return onError(exchange, "Authorization header is missing or invalid", HttpStatus.UNAUTHORIZED);
             }
@@ -77,6 +80,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory {
             // 새롭게 만든 (토큰 정보를 헤더에 담은) request를 exchange에 갈아끼워서 보내자.
             // 필터도 통과시키자.
             return chain.filter(exchange.mutate().request(request).build());
+
         };
     }
 
@@ -96,7 +100,6 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory {
         DataBuffer buffer = response.bufferFactory().wrap(bytes);
         // 나중에 하나의 데이터를 준비해서 보내겠다. just(): 준비된 데이터를 Mono로 감싸는 메서드
         return response.writeWith(Mono.just(buffer));
-
     }
 
     private Claims validateJwt(String token) {
@@ -110,5 +113,13 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory {
             log.error("JWT validation failed: {}", e.getMessage());
             return null;
         }
+
     }
 }
+
+
+
+
+
+
+
