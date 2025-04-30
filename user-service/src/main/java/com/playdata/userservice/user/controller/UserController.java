@@ -11,6 +11,7 @@ import com.playdata.userservice.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,10 @@ public class UserController {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, Object> redisTemplate;
+
+    // 기존에는 yml 값 가지고 올때 @Value를 사용해서 끌고 옴
+    // Environment 객체를 통해서 yml에 있는 프로퍼티에 직접 접근이 가능합니다.
+    private final Environment env;
 
     /*
      프론트 단에서 회원 가입 요청 보낼때 함께 보내는 데이터 (JSON) -> dto로 받자.
@@ -159,7 +164,17 @@ public class UserController {
         CommonResDto resDto
                 = new CommonResDto(HttpStatus.OK, "이메일로 회원 조회 완료", dto);
         return ResponseEntity.ok().body(resDto);
+    }
 
+    @GetMapping("/health-check")
+    public String healthCheck() {
+        String msg = "It's Working in User-service\n";
+        msg += "\ntoken.expiration_time: " + env.getProperty("token.expiration_time");
+        msg += "\ntoken.secret: " + env.getProperty("token.secret");
+        msg += "\naws.accessKey: " + env.getProperty("aws.accessKey");
+        msg += "\naws.secretKey: " + env.getProperty("aws.secretKey");
+
+        return msg;
     }
 
 

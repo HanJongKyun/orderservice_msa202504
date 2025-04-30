@@ -45,8 +45,12 @@ logging:
       playdata:
         productservice:
           common: debug
-
-
+# 액츄에이터 등록 (beans: 스프링 컨테이너에 등록된 빈 보여줌, health: 서버 살아있는지 보여줌)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, refresh, beans
 
 
 
