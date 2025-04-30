@@ -28,18 +28,18 @@ public class JwtTokenProvider {
     private int expirationRt;
 
     // 토큰 생성 메서드
-    /*
-           {
-               "iss": "서비스 이름(발급자)",
-               "exp": "2023-12-27(만료일자)",
-               "iat": "2023-11-27(발급일자)",
-               "email": "로그인한 사람 이메일",
-               "role": "Premium"
-               ...
-               == 서명
-           }
-    */
-    public String createToken(String email, String role) {
+     /*
+        {
+            "iss": "서비스 이름(발급자)",
+            "exp": "2023-12-27(만료일자)",
+            "iat": "2023-11-27(발급일자)",
+            "email": "로그인한 사람 이메일",
+            "role": "Premium"
+            ...
+            == 서명
+        }
+     */
+    public String createToken(String email, String role){
         // Claims: 페이로드에 들어갈 사용자 정보
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("role", role);
@@ -50,11 +50,11 @@ public class JwtTokenProvider {
                 .setIssuedAt(now)
                 // 현재 시간 밀리초에 30분을 더한 시간만큼을 만료시간으로 세팅
                 .setExpiration(new Date(now.getTime() + expiration * 60 * 1000))
-                .signWith(SignatureAlgorithm.HS256, secretKey) // 서명을 어떤 알고리즘으로 암호화 할지
+                .signWith(SignatureAlgorithm.HS256, secretKey) // 서명을 어떤 알고리즘으로 암호화 할 지
                 .compact();
     }
 
-    public String createRefreshToken(String email, String role) {
+    public String createRefreshToken(String email, String role){
         // Claims: 페이로드에 들어갈 사용자 정보
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("role", role);
@@ -65,9 +65,10 @@ public class JwtTokenProvider {
                 .setIssuedAt(now)
                 // 토큰 생성 로직은 비슷하지만 수명과 서명이 다릅니다. (Refresh가 좀 더 길어요)
                 .setExpiration(new Date(now.getTime() + expirationRt * 60 * 1000))
-                .signWith(SignatureAlgorithm.HS256, secretKeyRt) // 서명을 어떤 알고리즘으로 암호화 할지
+                .signWith(SignatureAlgorithm.HS256, secretKeyRt) // 서명을 어떤 알고리즘으로 암호화 할 지
                 .compact();
     }
+
 
     /**
      * 클라이언트가 전송한 토큰을 디코딩하여 토큰의 위조 여부를 확인
@@ -94,9 +95,23 @@ public class JwtTokenProvider {
 
         return TokenUserInfo.builder()
                 .email(claims.getSubject())
-                // 클레임이 Role타입으로  바로 변환을 못 해줍니다.
+                // 클레임이 Role타입으로 바로 변환을 못 해줍니다.
                 // 일단 String으로 데이터를 꺼내고 직접 Role타입으로 포장해서 넣어 줍니다.
                 .role(Role.valueOf(claims.get("role", String.class)))
                 .build();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
