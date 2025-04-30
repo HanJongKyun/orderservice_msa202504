@@ -16,12 +16,11 @@ spring:
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
-            - Path=/user-service/doLogin
+            - Path=/user-service/user/doLogin
             - Method=POST
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
-            - AuthorizationHeaderFilter
 
         - id: user-service
           uri: lb://USER-SERVICE
@@ -33,6 +32,16 @@ spring:
             # 요청 경로를 특정 패턴에 따라 새로운 경로로 변환 -> 정규표현식 사용 가능 (자유도 높음)
             # ex) /user-service/users/123 -> /users/123만 추출해서 요청 전달.
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+
+        - id: product-service
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/product-service/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/product-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
 
         - id: first-service
           uri: lb://FIRST-SERVICE
@@ -53,6 +62,7 @@ spring:
                 preLogger: false
                 postLogger: true
 
+
 eureka:
   client:
     register-with-eureka: true
@@ -60,10 +70,16 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 
-
 jwt:
   expiration: 30
   secretKey: rI9KLc/nWq+0ehvbQXjST52lIHi+A4PurdKwAe0ZcN+0LE1QBv7p0qhFx8wzt8PaigtMXpJHdIl6p4ILsLDasA==
+
+
+
+
+
+
+
 
 
 
