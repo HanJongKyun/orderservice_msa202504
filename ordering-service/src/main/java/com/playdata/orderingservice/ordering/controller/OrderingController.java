@@ -26,7 +26,7 @@ public class OrderingController {
     private final OrderingService orderingService;
 
     @PostMapping("/create")
-    public ResponseEntity<?>  createOrder(
+    public ResponseEntity<?> createOrder(
             // 전역 인증 정보를 담아놓는 ContextHolder에서 메서드 호출시에
             // 사용자 인증 정보를 전달해 주는 아노테이션
             @AuthenticationPrincipal TokenUserInfo userInfo,
