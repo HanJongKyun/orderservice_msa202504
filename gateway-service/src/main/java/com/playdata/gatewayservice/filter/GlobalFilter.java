@@ -28,9 +28,9 @@ public class GlobalFilter
             ServerHttpRequest request = exchange.getRequest();
             ServerHttpResponse response = exchange.getResponse();
 
-            log.info("GlobalFilter active! base Message = {}", config.getBaseMessage());
+            log.info("Global Filter active! base Message = {}", config.getBaseMessage());
             if (config.isPreLogger()) {
-                log.info("Request URI: {}", request.getURI());
+                log.info("Request URI: {}",  request.getURI());
             }
 
             return chain.filter(exchange).then(Mono.fromRunnable(() -> {
@@ -41,9 +41,7 @@ public class GlobalFilter
         };
     }
 
-    @Getter
-    @Setter
-    @ToString
+    @Getter @Setter @ToString
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Config {
@@ -56,3 +54,7 @@ public class GlobalFilter
 
 
 }
+
+
+
+

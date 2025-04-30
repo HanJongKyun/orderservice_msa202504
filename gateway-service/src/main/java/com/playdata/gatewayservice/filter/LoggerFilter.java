@@ -27,28 +27,25 @@ public class LoggerFilter
         // 필터의 우선순위를 적용하고 싶다면 OrderedGatewayFilter를 직접 생성한다.
         // 첫번째 매개값은 익명 객체 선언, 두번째 매개값으로 우선순위 상수를 넘깁니다.
         // 만약 여러 필터에 순위를 매기고 싶다면 정수로 지정합니다. (낮은 숫자일수록 우선순위 높음)
-       return new OrderedGatewayFilter(
-                (exchange, chain) -> {
-                    ServerHttpRequest request = exchange.getRequest();
-                    ServerHttpResponse response = exchange.getResponse();
+        return new OrderedGatewayFilter((exchange, chain) -> {
+            ServerHttpRequest request = exchange.getRequest();
+            ServerHttpResponse response = exchange.getResponse();
 
-                    log.info("Logger Filter active! base Message = {}", config.getBaseMessage());
-                    if (config.isPreLogger()) {
-                        log.info("Request URI: {}", request.getURI());
-                    }
+            log.info("Logger Filter active! base Message = {}", config.getBaseMessage());
+            if (config.isPreLogger()) {
+                log.info("Request URI: {}",  request.getURI());
+            }
 
-                    return chain.filter(exchange).then(Mono.fromRunnable(() -> {
-                        if (config.isPostLogger()) {
-                            log.info("Logger Post Filter active! response code = {}", response.getStatusCode());
-                        }
-                    }));
+            return chain.filter(exchange).then(Mono.fromRunnable(() -> {
+                if (config.isPostLogger()) {
+                    log.info("Logger Post Filter active! response code = {}", response.getStatusCode());
+                }
+            }));
 
-                }, Ordered.HIGHEST_PRECEDENCE);
+        }, Ordered.HIGHEST_PRECEDENCE);
     }
 
-    @Getter
-    @Setter
-    @ToString
+    @Getter @Setter @ToString
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Config {
@@ -61,3 +58,7 @@ public class LoggerFilter
 
 
 }
+
+
+
+
