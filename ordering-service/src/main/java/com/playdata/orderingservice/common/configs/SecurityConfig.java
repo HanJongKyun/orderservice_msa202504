@@ -21,11 +21,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    // 필터가 등록을 위해서 객체가 필요 -> 빈 등록된 객체를 자동 주입.
+    // 필터 등록을 위해서 객체가 필요 -> 빈 등록된 객체를 자동 주입.
     private final JwtAuthFilter jwtAuthFilter;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
-    // 시큐리티 기본 설정 (권한처리, 초기 로그인 화면 없애기 등등...)
+    // 시큐리티 기본 설정 (권한 처리, 초기 로그인 화면 없애기 등등...)
     @Bean // 이 메서드가 리턴하는 시큐리티 설정을 빈으로 등록하겠다.
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // 스프링 시큐리티에서 기본으로 제공하는 CSRF 토큰 공격을 방지하기 위한 장치 해제.
@@ -39,11 +39,11 @@ public class SecurityConfig {
         http.sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // 요청 권한 설정 (어떤 url이냐에 따라 검사를 할 지  말지를 결정)
+        // 요청 권한 설정 (어떤 url이냐에 따라 검사를 할 지 말지를 결정)
         http.authorizeHttpRequests(auth -> {
             auth
 //                    .requestMatchers("/user/list").hasRole("ROLE_ADMIN")
-                    .requestMatchers("/user/create", "/user/doLogin", "product/list", "/user/refresh").permitAll()
+                    .requestMatchers("/actuator/**").permitAll()
                     .anyRequest().authenticated();
         });
         // "/user/create", "/user/doLogin"은 인증 검사가 필요 없다고 설정했고,
@@ -54,7 +54,7 @@ public class SecurityConfig {
         // 내가 직접 만든 커스텀 필터가 해당 필터를 대체할 것이기 때문에, 그 필터 앞에 세워놓는 겁니다.
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-        // 인증 과정에서 예외가 발생할 경우 그 예외를 핸들링 할 객체를 등록
+        //  인증 과정에서 예외가 발생할 경우 그 예외를 핸들링 할 객체를 등록
         http.exceptionHandling(exception -> {
             exception.authenticationEntryPoint(customAuthenticationEntryPoint);
         });
@@ -69,4 +69,11 @@ public class SecurityConfig {
     }
 
 }
+
+
+
+
+
+
+
 
