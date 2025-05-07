@@ -47,6 +47,7 @@ public class SecurityConfig {
                             "/product/updateQuantity",
                             "/product/{prodId}",
                             "/product/products",
+                            "/product/cancel",
                             "/actuator/**").permitAll()
                     .anyRequest().authenticated();
         });
