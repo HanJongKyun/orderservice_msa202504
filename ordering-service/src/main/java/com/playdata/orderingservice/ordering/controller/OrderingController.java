@@ -52,13 +52,15 @@ public class OrderingController {
     }
 
     // 주문 상태를 취소로 변경하는 요청
-    @PatchMapping ("/{id}")
-    public ResponseEntity<?> cancelOrder(@PathVariable long id){
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> cancelOrder(@PathVariable long id) {
         Ordering ordering = orderingService.cancelOrder(id);
         CommonResDto resDto
                 = new CommonResDto(HttpStatus.OK, "주문 취소 완료", ordering.getId());
         return ResponseEntity.ok().body(resDto);
     }
+
+
 
     // 전체 회원의 주문 조회 (ADMIN 전용)
 
