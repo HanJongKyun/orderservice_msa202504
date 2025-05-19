@@ -3,7 +3,9 @@
 version: '3.8'
 services:
   config-service:
-    build: ./config-service
+    build:
+      context: ./config-service
+      dockerfile: Dockerfile
     container_name: config-service
     networks:
       - msa-network
@@ -11,11 +13,12 @@ services:
       - "8888:8888"
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://config-service:8888/actuator/health" ]
-      interval: 15s # 15초마다 한번씩 체크
-      timeout: 5s  # 5초 안에 완료되어야 한다.
-      retries: 3 # 3번까지 재시도 하기
-      start_period: 30s # 컨테이너 시작 후 60초 동안은 health check 실패를 무시.
-    restart: always # 컨테이너가 모종의 이유로 중지되면 무조건 재시작 시도.
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    restart: always
+
 
   discovery-service:
     build: ./discovery-service
