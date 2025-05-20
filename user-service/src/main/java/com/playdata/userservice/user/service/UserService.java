@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service // @Component 해도 되는데 서비스 계층이니깐...
+@Service // @Component 해도 되는데 서비스 계층이니깐..
 @RequiredArgsConstructor
 public class UserService {
 

@@ -120,7 +120,7 @@ public class UserController {
     }
 
     // 회원 정보 조회 (마이페이지) -> 로그인 한 회원만이 요청할 수 있습니다.
-    // 일반 회원용 정보 조회
+    // 일반 회원용 정보 조회.
     @GetMapping("/myInfo")
     public ResponseEntity<?> getMyInfo() {
         UserResDto dto = userService.myInfo();
