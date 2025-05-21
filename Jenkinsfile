@@ -149,6 +149,23 @@ pipeline {
             }
         }
 
+        stage('Inject application-dev.yml') {
+            steps {
+                withCredentials([file(credentialsId: 'dev-config', variable: 'DEV_CONFIG')]) {
+                    script {
+                        def changedServices = env.CHANGED_SERVICES.split(",")
+                        changedServices.each { service ->
+                            sh """
+                            echo "Injecting dev config into ${service}"
+                            cp \$DEV_CONFIG ${service}/src/main/resources/application-dev.yml
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
+
     }
 }
 
