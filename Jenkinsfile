@@ -7,9 +7,8 @@ pipeline {
     agent any // 어느 젠킨스 서버에서나 실행이 가능
     environment {
         SERVICE_DIRS = "config-service,discovery-service,gateway-service,user-service,ordering-service,product-service"
-        ECR_URL = "794038249902.dkr.ecr.ap-northeast-2.amazonaws.com/orderservice-lmage"
+        ECR_URL = "794038249902.dkr.ecr.ap-northeast-2.amazonaws.com/orderservice-image"
         REGION = "ap-northeast-2"
-
     }
     stages {
         // 각 작업 단위를 스테이지로 나누어서 작성 가능.
@@ -83,7 +82,6 @@ pipeline {
                         sh """
                         echo "Building ${service}..."
                         cd ${service}
-                        chmod +x gradlew
                         ./gradlew clean build -x test
                         ls -al ./build/libs
                         cd ..
@@ -100,32 +98,31 @@ pipeline {
             steps {
                 script {
                     // jenkins에 저장된 credentials를 사용하여 AWS 자격증명을 설정.
-                    withAWS(region: "${REGION}", credentials: "aws-key")
-                    def changedServices = env.CHANGED_SERVICES.split(",")
-                    changedServices.each { service ->
-                        sh """
-                        # ECR에 이미지를 push하기 위해 인증 정보를 대신 검증해 주는 도구 다운로드.
-                        # /usr/local/bin/ 경로에 해당 파일을 이동
-                        curl -O https://amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com/0.4.0/linux-amd64/${ecrLoginHelper}
-                        chmod +x ${ecrLoginHelper}
-                        mv ${ecrLoginHelper} /usr/local/bin/
+                    withAWS(region: "${REGION}", credentials: "aws-key") {
+                        def changedServices = env.CHANGED_SERVICES.split(",")
+                        changedServices.each { service ->
+                            sh """
+                            # ECR에 이미지를 push하기 위해 인증 정보를 대신 검증해 주는 도구 다운로드.
+                            # /usr/local/bin/ 경로에 해당 파일을 이동
+                            curl -O https://amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com/0.4.0/linux-amd64/${ecrLoginHelper}
+                            chmod +x ${ecrLoginHelper}
+                            mv ${ecrLoginHelper} /usr/local/bin/
 
-                        # Docker에게 push 명령을 내리면 지정된 URL로 push할 수 있게 설정.
-                        # 자동으로 로그인 도구를 쓰게 설정
-                        echo '{"credHelpers": {"${ECR_URL}": "ecr-login"}}' > ~/.docker/config.json
+                            # Docker에게 push 명령을 내리면 지정된 URL로 push할 수 있게 설정.
+                            # 자동으로 로그인 도구를 쓰게 설정
+                            mkdir -p ~/.docker
+                            echo '{"credHelpers": {"${ECR_URL}": "ecr-login"}}' > ~/.docker/config.json
 
-                        docker build -t ${service}:latest ${service}
-                        docker tag ${service}:latest ${ECR_URL}/${service}:latest
-                        docker push ${ECR_URL}/${service}:latest
-                        """
-
+                            docker build -t ${service}:latest ${service}
+                            docker tag ${service}:latest ${ECR_URL}/${service}:latest
+                            docker push ${ECR_URL}/${service}:latest
+                            """
+                        }
                     }
+
 
                 }
             }
-
-
-
         }
 
     }
