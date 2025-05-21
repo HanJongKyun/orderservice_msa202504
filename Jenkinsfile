@@ -69,6 +69,22 @@ pipeline {
             }
         }
 
+        stage('Inject application-dev.yml') {
+                    steps {
+                        withCredentials([file(credentialsId: 'dev-config', variable: 'DEV_CONFIG')]) {
+                            script {
+                                def changedServices = env.CHANGED_SERVICES.split(",")
+                                changedServices.each { service ->
+                                    sh """
+                                    echo "Injecting dev config into ${service}"
+                                    cp \$DEV_CONFIG ${service}/src/main/resources/application-dev.yml
+                                    """
+                                }
+                            }
+                        }
+                    }
+                }
+
         stage('Build Changed Services') {
             // 이 스테이지는 빌드되어야 할 서비스가 존재한다면 실행되는 스테이지.
             // 이전 스테이지에서 세팅한 CHANGED_SERVICES라는 환경변수가 비어있지 않아야만 실행.
@@ -149,21 +165,6 @@ pipeline {
             }
         }
 
-        stage('Inject application-dev.yml') {
-            steps {
-                withCredentials([file(credentialsId: 'dev-config', variable: 'DEV_CONFIG')]) {
-                    script {
-                        def changedServices = env.CHANGED_SERVICES.split(",")
-                        changedServices.each { service ->
-                            sh """
-                            echo "Injecting dev config into ${service}"
-                            cp \$DEV_CONFIG ${service}/src/main/resources/application-dev.yml
-                            """
-                        }
-                    }
-                }
-            }
-        }
 
 
     }
