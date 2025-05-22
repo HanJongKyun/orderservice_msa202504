@@ -23,6 +23,8 @@ pipeline {
                 withCredentials([file(credentialsId: 'config-secret', variable: 'configSecret')]) {
                     script {
                         sh 'cp $configSecret config-service/src/main/resources/application-dev.yml'
+                        sh 'echo "[DEBUG] Copied application-dev.yml content:"'
+                        sh 'cat config-service/src/main/resources/application-dev.yml'
                     }
                 }
             }
