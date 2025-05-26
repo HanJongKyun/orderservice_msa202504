@@ -170,6 +170,7 @@ public class UserController {
                 = new CommonResDto(HttpStatus.OK, "이메일로 회원 조회 완료", dto);
         return ResponseEntity.ok().body(resDto);
     }
+
     // 유효한 이메일인지 검증 요청
     @PostMapping("/email-valid")
     public ResponseEntity<?> emailValid(@RequestBody Map<String, String> map) {
@@ -178,6 +179,14 @@ public class UserController {
         String authNum = userService.mailCheck(email);
 
         return ResponseEntity.ok().body(authNum);
+    }
+
+    // 인증 코드 검증 요청
+    @PostMapping("/verify")
+    public ResponseEntity<?> verifyEmail(@RequestBody Map<String, String> map) {
+        log.info("인증 코드 검증! map: {}", map);
+        Map<String, String> result = userService.verifyEmail(map);
+        return ResponseEntity.ok().body("Success");
     }
 
     @GetMapping("/health-check")
