@@ -37,7 +37,7 @@ public class UserController {
     private final RedisTemplate<String, Object> redisTemplate;
 
     // 기존에는 yml 값 가지고 올때 @Value를 사용해서 끌고 옴
-    // Environment 객체를 통해서 yml에 있는 프로퍼티에 직접 접근이 가능합니다.
+    // Environment 객체를 통해 yml에 있는 프로퍼티에 직접 접근이 가능합니다.
     private final Environment env;
 
     /*
@@ -120,7 +120,7 @@ public class UserController {
     }
 
     // 회원 정보 조회 (마이페이지) -> 로그인 한 회원만이 요청할 수 있습니다.
-    // 일반 회원용 정보 조회.
+    // 일반 회원용 정보 조회
     @GetMapping("/myInfo")
     public ResponseEntity<?> getMyInfo() {
         UserResDto dto = userService.myInfo();
@@ -156,7 +156,7 @@ public class UserController {
     }
 
     // ordering-service가 회원 정보를 원할 때 이메일을 보냅니다.
-    // 그 이메일을 가지고 ordering-service가 원하는 회원 정보를 리턴하는 메세드.
+    // 그 이메일을 가지고 ordering-service가 원하는 회원 정보를 리턴하는 메서드.
     @GetMapping("/findByEmail")
     public ResponseEntity<?> getUserByEmail(@RequestParam String email) {
         try {
@@ -164,6 +164,7 @@ public class UserController {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+
         log.info("getUserByEmail: email: {}", email);
         UserResDto dto = userService.findByEmail(email);
         CommonResDto resDto
@@ -191,13 +192,21 @@ public class UserController {
 
     @GetMapping("/health-check")
     public String healthCheck() {
-        String msg = "It's Working in User-service\n";
-        msg += "\ntoken.expiration_time: " + env.getProperty("token.expiration_time");
-        msg += "\ntoken.secret: " + env.getProperty("token.secret");
-        msg += "\naws.accessKey: " + env.getProperty("aws.accessKey");
-        msg += "\naws.secretKey: " + env.getProperty("aws.secretKey");
+        String msg = "It's Working in User-service!\n";
+        msg += "token.expiration_time: " + env.getProperty("token.expiration_time");
+        msg += "token.secret: " + env.getProperty("token.secret");
+        msg += "aws.accessKey: " + env.getProperty("aws.accessKey");
+        msg += "aws.secretKey: " + env.getProperty("aws.secretKey");
 
         return msg;
+    }
+
+    // 카카오 콜백 요청 처리
+    @GetMapping("/kakao")
+    public void kakaoCallback(@RequestParam String code) {
+        log.info("카카오 콜백 처리 시작! code: {}", code);
+
+        userService.getKakaoAccessToken(code);
     }
 
 
