@@ -29,7 +29,9 @@ public class SecurityConfig {
     @Bean // 이 메서드가 리턴하는 시큐리티 설정을 빈으로 등록하겠다.
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable());
-        http.cors(Customizer.withDefaults()); // 직접 커스텀한 CORS 설정을 적용.
+
+//        http.cors(Customizer.withDefaults()); // 직접 커스텀한 CORS 설정을 적용.
+
         http.sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
@@ -43,7 +45,7 @@ public class SecurityConfig {
                             "/user/findByEmail",
                             "/user/health-check",
                             "/user/email-valid",
-                            "/user/verify",
+                            "/user/verify", "/user/kakao",
                             "/actuator/**").permitAll()
                     .anyRequest().authenticated();
         });
