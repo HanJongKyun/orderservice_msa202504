@@ -6,6 +6,7 @@ import com.playdata.orderingservice.client.ProductServiceClient;
 import com.playdata.orderingservice.client.UserServiceClient;
 import com.playdata.orderingservice.common.auth.TokenUserInfo;
 import com.playdata.orderingservice.common.dto.CommonResDto;
+import com.playdata.orderingservice.ordering.controller.SseController;
 import com.playdata.orderingservice.ordering.dto.OrderingListResDto;
 import com.playdata.orderingservice.ordering.dto.OrderingSaveReqDto;
 import com.playdata.orderingservice.ordering.dto.ProductResDto;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
 import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
@@ -37,6 +39,7 @@ public class OrderingService {
 
     private final OrderingRepository orderingRepository;
     private final RestTemplate restTemplate;
+    private final SseController sseController;
 
     // feign client 구현체 주입 받기
     private final UserServiceClient userServiceClient;
@@ -105,7 +108,12 @@ public class OrderingService {
         processOrderToProductService(dtoList, userDto.getId(), ordering);
 
         // 모든 로직에 장애가 없었다면 주문 확정(status가 ORDERED로 처리)
-        return orderingRepository.save(ordering);
+        Ordering savedOrdering = orderingRepository.save(ordering);
+
+        // 관리자에게 주문이 생성되었다는 알림을 전송
+        sseController.sendOrderMessage(savedOrdering);
+
+        return savedOrdering;
     }
 
     public UserResDto getUserResDto(String email) {
@@ -133,6 +141,10 @@ public class OrderingService {
                                              Long userId,
                                              Ordering ordering
     ) {
+        log.info("주문 객체 ID: {}", ordering.getId());
+        log.info("주문 상태: {}", ordering.getOrderStatus());
+
+
         // 주문 상세 내역에 대한 처리를 반복해서 지정.
         for (OrderingSaveReqDto dto : dtoList) {
 
@@ -159,6 +171,8 @@ public class OrderingService {
                         .quantity(quantity)
                         .build();
 
+                log.info("orderDetail: {}", orderDetail);
+
                 // 주문 내역 리스트에 상세 내역을 add하기.
                 // (cascadeType.PERSIST로 세팅했기 때문에 함께 INSERT가 진행될 것!)
                 ordering.getOrderDetails().add(orderDetail);
@@ -180,6 +194,8 @@ public class OrderingService {
                 throw e; // 클라이언트 예외니까 그대로 던짐 -> 컨트롤러 -> 전역 예외 핸들러가 클라이언트로 상태를 전달.
             }
         }
+        log.info("마지막 ordering: {}", ordering.getId());
+        orderingRepository.save(ordering);
     }
 
     // 재고를 주문수량만큼 감소시켜달라는 요청을 전담하는 메서드
