@@ -1,0 +1,9 @@
+replicaCount: 1
+image: rabbitmq:3-management
+imagePullPolicy: IfNotPresent
+service:
+  messagingPort: 5672
+  uiPort: 15672
+env:
+  RABBITMQ_DEFAULT_USER: admin
+  RABBITMQ_DEFAULT_PASS: admin123

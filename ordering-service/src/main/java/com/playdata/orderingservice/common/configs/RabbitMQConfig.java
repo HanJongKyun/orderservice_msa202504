@@ -21,7 +21,7 @@ public class RabbitMQConfig {
      * Exchange = 우체국 역할
      * 메시지가 들어오면 "어느 큐로 보낼지" 결정하는 곳
      * TopicExchange = 패턴 매칭으로 라우팅 (예: order.*, user.*)
-
+     * <p>
      * 주문 관련 메시지들을 처리하는 교환소라는 의미
      * 이름은 마음대로 정할 수 있어요 ("my-exchange", "쇼핑몰교환소" 등)
      */
@@ -34,12 +34,12 @@ public class RabbitMQConfig {
      * Queue = 사서함 역할
      * 관리자에게 보낼 알림 메시지들이 쌓이는 곳
      * durable = 서버 재시작해도 큐가 사라지지 않음
-     *
+     * <p>
      * admin = 관리자용
      * order = 주문 관련
      * notifications = 알림용
      * → "관리자 주문 알림 큐"라는 의미
-     *
+     * <p>
      * Time To Live = 메시지 유효기간
      * 1시간(3600초) 후에도 처리 안 되면 메시지 삭제
      * 관리자가 1시간 동안 접속 안 하면 오래된 알림은 의미 없으니까!
@@ -48,6 +48,14 @@ public class RabbitMQConfig {
     public Queue orderQueue() {
         return QueueBuilder.durable("admin.order.notifications")
                 .withArgument("x-message-ttl", 3600000)
+                .build();
+    }
+
+    // 대기 알림용 큐 (알림 전송 대상 관리자가 없을 시 메시지 누적)
+    @Bean
+    public Queue pendingNotificationQueue() {
+        return QueueBuilder.durable("admin.pending.notifications")
+                .withArgument("x-message-ttl", 86400000) // 24시간
                 .build();
     }
 

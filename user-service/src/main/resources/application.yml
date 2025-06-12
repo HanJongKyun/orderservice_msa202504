@@ -12,8 +12,8 @@ spring:
     password: admin123
 
   mail:
-    host: smtp.naver.com # SMTP 서버 호스트
-    port: 465 # SMTP 서버 포트
+    host: smtp.gmail.com # SMTP 서버 호스트
+    port: 587 # SMTP 서버 포트
     username: hjk326333
     password:  # 앱 비밀번호 16자리 (공백없이)
     properties:
@@ -21,11 +21,11 @@ spring:
         smtp:
           auth: true # 사용자 인증 시도 여부 (앱 비밀번호로 인증)
           timeout: 5000
-          ssl:
-            enable: true
-            trust: smtp.naver.com
-#          starttls:
-#            enable: true 구글(gmail) 설정은 tls 사용 허용
+#          ssl:
+#            enable: true
+#            trust: smtp.naver.com
+          starttls:
+            enable: true 구글(gmail) 설정은 tls 사용 허용
 
 # 카카오 로그인용 데이터
 oauth2:
@@ -41,6 +41,19 @@ management:
     web:
       exposure:
         include: health, busrefresh, beans
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs # default value
+    groups:
+      enabled: true # API grouping
+
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha # 태그 정렬 방식 (알파벳순)
+    operations-sorter: alpha # 메서드 정렬 방식
+    display-request-duration: true # 요청에 소요된 시간 표시
+    doc-expansion: none # 문서 초기 펼침 상태
 
 
 
